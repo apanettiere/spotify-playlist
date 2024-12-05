@@ -131,8 +131,9 @@ def delete_song_from_playlist():
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
 
+    # Microservice A: Check for Duplicates
 
-# Microservice A: Check for Duplicates
+
 def check_duplicates():
     """Checks for duplicates in a playlist using Microservice A."""
     playlist_id = input("Enter your playlist ID: ").strip()
@@ -187,24 +188,9 @@ def show_top_songs():
     else:
         print("No response from Microservice C.")
 
-
-# Microservice C: Add Top Song to Playlist
-def add_top_song():
-    """Adds a top song to a playlist using Microservice C."""
-    track_id = input("Enter the track ID of the song to add: ").strip()
-    playlist_id = input("Enter your playlist ID: ").strip()
-    write_request(REQ_C_PATH, f"{track_id}\n{playlist_id}")
-    print("Waiting for response from Microservice C...")
-    time.sleep(5)  # Wait for Microservice C to process
-
-    response = read_response(RES_C_PATH)
-    if response:
-        print(response)
-    else:
-        print("No response from Microservice C.")
-
-
 # Microservice D: Create a New Playlist
+
+
 def create_playlist():
     """Creates a new playlist using Microservice D."""
     playlist_name = input("Enter a name for your new playlist: ").strip()
@@ -218,24 +204,9 @@ def create_playlist():
     else:
         print("No response from Microservice D.")
 
-
-# Microservice D: Add First Song to New Playlist
-def add_first_song():
-    """Adds the first song to a playlist using Microservice D."""
-    playlist_id = input("Enter the playlist ID of your new playlist: ").strip()
-    song_name = input("Enter the song name to add: ").strip()
-    write_request(REQ_D_PATH, f"{playlist_id}\n{song_name}")
-    print("Waiting for response from Microservice D...")
-    time.sleep(5)  # Wait for Microservice D to process
-
-    response = read_response(RES_D_PATH)
-    if response:
-        print(response)
-    else:
-        print("No response from Microservice D.")
+# Main Menu
 
 
-# Inclusivity Heuristic #3: Allow Users to Skip Playlist Viewing
 def menu():
     """Displays the main menu."""
     print("\nSpotify Playlist Manager")
@@ -245,17 +216,17 @@ def menu():
     print("4. Check for Duplicates in Playlist (Microservice A)")
     print("5. Shuffle Playlist (Microservice B)")
     print("6. Show Top Songs for an Artist (Microservice C)")
-    print("7. Add Top Song to Playlist (Microservice C)")
-    print("8. Create a New Playlist (Microservice D)")
-    print("9. Add First Song to New Playlist (Microservice D)")
-    print("10. Exit")
+    print("7. Create a New Playlist (Microservice D)")
+    print("8. Exit")
+
+# Adjusted Main Program
 
 
 def main():
     """Main program loop."""
     while True:
         menu()
-        choice = input("Choose an option (1-10): ").strip()
+        choice = input("Choose an option (1-8): ").strip()
 
         if choice == "1":
             add_song_to_playlist()
@@ -270,12 +241,8 @@ def main():
         elif choice == "6":
             show_top_songs()
         elif choice == "7":
-            add_top_song()
-        elif choice == "8":
             create_playlist()
-        elif choice == "9":
-            add_first_song()
-        elif choice == "10":
+        elif choice == "8":
             print("Goodbye!")
             break
         else:

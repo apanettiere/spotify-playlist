@@ -1,0 +1,1 @@
+Microservice C is running successfully.

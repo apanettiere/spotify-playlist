@@ -8,6 +8,7 @@ RES_PATH = "response_D.txt"
 
 
 def read_request():
+    """Reads the request from the file."""
     try:
         with open(REQ_PATH, "r") as file:
             lines = file.readlines()
@@ -20,6 +21,7 @@ def read_request():
 
 
 def write_response(response):
+    """Writes the response to the file."""
     try:
         with open(RES_PATH, "w") as file:
             file.write(response)
@@ -28,6 +30,7 @@ def write_response(response):
 
 
 def create_playlist(sp, user_id, playlist_name):
+    """Creates a new playlist and writes the playlist ID to the response file."""
     try:
         playlist = sp.user_playlist_create(user_id, playlist_name, public=True)
         write_response(f"Playlist created successfully: {playlist['id']}")
@@ -35,18 +38,8 @@ def create_playlist(sp, user_id, playlist_name):
         write_response(f"Error: {e}")
 
 
-def add_first_song(sp, playlist_id, song_name):
-    try:
-        # Search for the song
-        results = sp.search(q=song_name, type='track', limit=1)
-        track_id = results['tracks']['items'][0]['id']
-        sp.playlist_add_items(playlist_id, [track_id])
-        write_response(f"Song '{song_name}' added successfully")
-    except Exception as e:
-        write_response(f"Error: {e}")
-
-
 def main():
+    """Main function to handle requests."""
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
         client_id=os.getenv("SPOTIPY_CLIENT_ID"),
         client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
@@ -56,14 +49,18 @@ def main():
     user_id = sp.current_user()["id"]
 
     while True:
+        # Read request
         request = read_request()
         if request:
             if len(request) == 1:
                 playlist_name = request[0].strip()
                 create_playlist(sp, user_id, playlist_name)
-            elif len(request) == 2:
-                playlist_id, song_name = request[0].strip(), request[1].strip()
-                add_first_song(sp, playlist_id, song_name)
+            else:
+                write_response(
+                    "Invalid request format. Expected one line for the playlist name.")
+        else:
+            # Indicate the microservice is running
+            write_response("Microservice D is running.")
         time.sleep(3)
 
 

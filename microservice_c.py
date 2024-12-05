@@ -8,6 +8,7 @@ RES_PATH = "response_C.txt"
 
 
 def read_request():
+    """Reads the request from the file."""
     try:
         with open(REQ_PATH, "r") as file:
             lines = file.readlines()
@@ -20,6 +21,7 @@ def read_request():
 
 
 def write_response(response):
+    """Writes the response to the file."""
     try:
         with open(RES_PATH, "w") as file:
             file.write(response)
@@ -28,9 +30,14 @@ def write_response(response):
 
 
 def show_top_songs(sp, artist_name):
+    """Fetches and writes the top 10 songs for a given artist."""
     try:
         # Search for the artist
         results = sp.search(q=f"artist:{artist_name}", type="artist", limit=1)
+        if not results['artists']['items']:
+            write_response(f"Artist '{artist_name}' not found.")
+            return
+
         artist_id = results['artists']['items'][0]['id']
 
         # Get the artist's top tracks
@@ -42,31 +49,29 @@ def show_top_songs(sp, artist_name):
         write_response(f"Error: {e}")
 
 
-def add_top_song_to_playlist(sp, track_id, playlist_id):
-    try:
-        sp.playlist_add_items(playlist_id, [track_id])
-        write_response("Song added successfully")
-    except Exception as e:
-        write_response(f"Error: {e}")
-
-
 def main():
+    """Main function to handle requests."""
+    # Initialize Spotify API client
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
         client_id=os.getenv("SPOTIPY_CLIENT_ID"),
         client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
         redirect_uri=os.getenv("SPOTIPY_REDIRECT_URI"),
-        scope="playlist-modify-private playlist-read-private"
+        scope="playlist-read-private"
     ))
 
     while True:
+        # Read and process requests
         request = read_request()
         if request:
             if len(request) == 1:
                 artist_name = request[0].strip()
                 show_top_songs(sp, artist_name)
-            elif len(request) == 2:
-                track_id, playlist_id = request[0].strip(), request[1].strip()
-                add_top_song_to_playlist(sp, track_id, playlist_id)
+            else:
+                write_response(
+                    "Invalid request format. Expected one line for artist name.")
+        else:
+            # Provide success message when idle
+            write_response("Microservice C is running successfully.")
         time.sleep(3)
 
 
